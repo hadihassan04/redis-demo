@@ -1,6 +1,6 @@
 # Redis as a Real-Time Buffer for Elasticsearch
 
-**YZV 322E — Applied Data Engineering | Tool #50 | Spring 2026**
+**YZV 322E — Applied Data Engineering | Tool #50 | Spring 2026 | Hadi Hassan | 150230926**
 
 ---
 
@@ -11,6 +11,7 @@ Redis is an open-source, in-memory data structure store that operates as a datab
 ---
 
 ## 2. Prerequisites
+
 Docker
 Python 3.10+
 Redis, Elasticsearch, and Kibana all run in Docker.
@@ -100,11 +101,6 @@ Worker started. Waiting for events...
 This is the key demo that proves Redis's value:
 
 ```bash
-# (Optional but recommended) Reset demo data so counts start from 0
-# This avoids XLEN showing old messages from previous runs.
-docker exec -it redis redis-cli DEL events
-curl -X DELETE "http://localhost:9200/events" 2>/dev/null || true
-
 # 1. Run producer (terminal 1)
 python producer.py
 
@@ -115,15 +111,11 @@ python worker.py
 #    → producer keeps running, Redis buffers all messages
 
 # 4. Check buffered messages (backlog)
-# XLEN shows the total stream length since the beginning (so it may be large).
 # For backlog while the worker is stopped, check the consumer group lag/pending.
 docker exec -it redis redis-cli XINFO GROUPS events
 # Look for fields like:
 # - lag: how many new entries are waiting to be delivered to the group
-# - pending: how many entries were delivered but not ACKed
-#
-# Alternatively, show the pending summary explicitly:
-docker exec -it redis redis-cli XPENDING events workers
+# - pending: how many entries were delivered but not Acknowledged
 
 # 5. Restart the worker
 python worker.py
